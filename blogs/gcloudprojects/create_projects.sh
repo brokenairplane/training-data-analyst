@@ -33,6 +33,6 @@ for EMAIL in $EMAILS; do
    gcloud alpha billing accounts projects link $PROJECT_ID --account-id=$ACCOUNT_ID
    
    #Add service accounts for ML
-   gcloud beta ml init-project
+   gcloud beta ml init-project --project=$PROJECT_ID
 
 done
