@@ -12,7 +12,7 @@ PROJECT_PREFIX=$1
 shift
 EMAILS=$@
 
-gcloud components update
+sudo gcloud components update
 gcloud components install alpha
 
 for EMAIL in $EMAILS; do
