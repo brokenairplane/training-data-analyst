@@ -38,11 +38,8 @@ for EMAIL in $EMAILS; do
    
    # add service accounts for ML
    gcloud beta ml init-project --project=$PROJECT_ID
-
-done
-
-for EMAIL in $EMAILS; do
+   
    # output the email, project id, and a link to the project console
    printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID
- 
+
 done
