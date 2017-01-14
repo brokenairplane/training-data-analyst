@@ -39,6 +39,9 @@ for EMAIL in $EMAILS; do
    # add service accounts for ML
    gcloud beta ml init-project --project=$PROJECT_ID
    
+   # add firewall rule to allow Datalab
+   gcloud compute firewall-rules create allow-datalab --allow=tcp:22,tcp:8081
+   
    # output the email, project id, and a link to the project console
    printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID
 
