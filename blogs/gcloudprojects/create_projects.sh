@@ -11,6 +11,7 @@ shift
 PROJECT_PREFIX=$1
 shift
 EMAILS=$@
+ORIG_PROJECT=$(gcloud config get-value project)
 
 gcloud components update
 gcloud components install alpha
@@ -49,5 +50,8 @@ for EMAIL in $EMAILS; do
    
    # output the email, project id, and a link to the project console
    printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee account-list.txt
+
+   #Set project back to original project
+   gcloud config set project $ORIG_PROJECT
 
 done
