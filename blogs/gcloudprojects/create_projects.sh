@@ -48,10 +48,11 @@ for EMAIL in $EMAILS; do
    gcloud config set project $PROJECT_ID
    gcloud compute firewall-rules create allow-datalab --allow=tcp:22,tcp:8081
    
-   # output the email, project id, and a link to the project console
-   printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee account-list.txt
-
    #Set project back to original project
+   printf "Setting project back to %s" $ORIG_PROJECT
    gcloud config set project $ORIG_PROJECT
+   
+   # output the email, project id, and a link to the project console
+   printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.txt
 
 done
