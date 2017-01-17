@@ -44,6 +44,7 @@ for EMAIL in $EMAILS; do
    
    # add firewall rule to allow Datalab
    echo "Adding new firewall rule"
+   gcloud config set project $PROJECT_ID
    gcloud compute firewall-rules create allow-datalab --allow=tcp:22,tcp:8081
    
    # output the email, project id, and a link to the project console
