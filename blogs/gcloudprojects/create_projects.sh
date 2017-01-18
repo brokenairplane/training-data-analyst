@@ -41,7 +41,7 @@ for EMAIL in $EMAILS; do
    
    # add service accounts for ML
    echo "Adding ML service account"
-   gcloud beta ml init-project --project=$PROJECT_ID
+   gcloud beta ml init-project --project=$PROJECT_ID --quiet
    
    # add firewall rule to allow Datalab
    echo "Adding new firewall rule"
