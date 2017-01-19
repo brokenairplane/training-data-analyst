@@ -53,6 +53,6 @@ for EMAIL in $EMAILS; do
    gcloud config set project $ORIG_PROJECT
    
    # output the email, project id, and a link to the project console
-   printf "%s %s https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.txt
+   printf "%s, %s, https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.csv
 
 done
