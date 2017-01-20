@@ -86,3 +86,5 @@ for STUDENT_EMAIL in "${STUDENT_EMAILS[@]}"; do
    printf "%s, %s, https://console.cloud.google.com/home/dashboard?project=%s\n" $STUDENT_EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.csv
    (( PROGRESS++ ))
 done
+
+sort -k1 -n -t, account-list.csv
