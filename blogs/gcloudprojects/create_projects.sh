@@ -12,13 +12,14 @@ PROJECT_PREFIX=$1
 shift
 EMAILS=$@
 ORIG_PROJECT=$(gcloud config get-value project)
+PROGRESS=1
 
 gcloud components update
 gcloud components install alpha
 
 for EMAIL in $EMAILS; do
    PROJECT_ID=$(echo "${PROJECT_PREFIX}-${EMAIL}" | sed 's/@/x/g' | sed 's/\./x/g' | cut -c 1-30)
-   echo "Creating project $PROJECT_ID for $EMAIL ... "
+   echo "Creating project $PROJECT_ID for $EMAIL ... ($PROGRESS of ${#EMAILS})"
 
    # create and opt-out for GCE Firwall
    gcloud alpha projects create $PROJECT_ID --labels=gce-enforcer-fw-opt-out=shortlivedexternal
@@ -54,5 +55,5 @@ for EMAIL in $EMAILS; do
    
    # output the email, project id, and a link to the project console
    printf "%s, %s, https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.csv
-
+   (( PROGRESS++ ))
 done
