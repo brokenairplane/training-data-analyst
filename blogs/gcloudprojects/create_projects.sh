@@ -18,9 +18,8 @@ gcloud components update
 gcloud components install alpha
 
 for EMAIL in $EMAILS; do
-   echo $EMAILS
    PROJECT_ID=$(echo "${PROJECT_PREFIX}-${EMAIL}" | sed 's/@/x/g' | sed 's/\./x/g' | cut -c 1-30)
-   echo "Creating project $PROJECT_ID for $EMAIL ... ($PROGRESS of ${#EMAILS})"
+   echo "Creating project $PROJECT_ID for $EMAIL ... ($PROGRESS of ${#EMAILS[@]})"
 
    # create and opt-out for GCE Firwall
    gcloud alpha projects create $PROJECT_ID --labels=gce-enforcer-fw-opt-out=shortlivedexternal
