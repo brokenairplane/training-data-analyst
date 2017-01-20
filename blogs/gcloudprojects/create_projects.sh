@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ "$#" -lt 3 ]; then
-   echo "Usage:  ./create_projects.sh billingid project-prefix  email1 [email2 [email3 ...]]]"
-   echo "   eg:  ./create_projects.sh 0X0X0X-0X0X0X-0X0X0X learnml-20170106  somebody@gmail.com someother@gmail.com"
+if [ "$#" -lt 6 ]; then
+   echo "Usage:  ./create_projects.sh billingid project-prefix -owners \"email1 [email 2 [email3...]]\" -students \"email1 [email2 [email3 ...]]]"
+   echo "   eg:  ./create_projects.sh 0X0X0X-0X0X0X-0X0X0X learnml-170106-bld -owners \"somebody@gmail.com\" -students \"somebody@gmail.com someother@gmail.com\""
    exit
 fi
 
@@ -10,27 +10,54 @@ ACCOUNT_ID=$1
 shift
 PROJECT_PREFIX=$1
 shift
-EMAILS=$@
+if [ "$1" == "-owners" ]; then
+  shift
+  if [ -z "$1" ]; then
+    echo "There must be at least one owner"
+    exit
+  else
+    OWNER_EMAILS=(${1,,}) # Make lowercase
+    echo ${OWNER_EMAILS[@]}
+  fi
+else
+  echo "-owners flag is required e.g. -owners \"somebody@gmail.com\""
+  exit
+fi
+shift
+if [ "$1" == "-students" ]; then
+  shift
+  if [ -z "$1" ]; then
+    echo "There must be at least one student"
+    exit
+  else
+    STUDENT_EMAILS=(${1,,})
+    echo ${STUDENT_EMAILS[@]}
+  fi
+else
+  echo "-students flag is required e.g. -students \"somebody@gmail.com\""
+  exit
+fi
+TOTAL_OWNER_EMAILS=${#OWNER_EMAILS[@]}
+TOTAL_STUDENT_EMAILS=${#STUDENT_EMAILS[@]}
 ORIG_PROJECT=$(gcloud config get-value project)
 PROGRESS=1
-ARRAY_EMAILS=($EMAILS)
-TOTAL_EMAILS=${#ARRAY_EMAILS[@]}
 
 gcloud components update
 gcloud components install alpha
 
-for EMAIL in $EMAILS; do
-   PROJECT_ID=$(echo "${PROJECT_PREFIX}-${EMAIL}" | sed 's/@/x/g' | sed 's/\./x/g' | cut -c 1-30)
-   echo "Creating project $PROJECT_ID for $EMAIL ... ($PROGRESS of $TOTAL_EMAILS)"
+for STUDENT_EMAIL in "${STUDENT_EMAILS[@]}"; do
+   PROJECT_ID=$(echo "${PROJECT_PREFIX}-${STUDENT_EMAIL}" | sed 's/@/x/g' | sed 's/\./x/g' | cut -c 1-30)
+   echo "Creating project $PROJECT_ID for $STUDENT_EMAIL ... ($PROGRESS of $TOTAL_STUDENT_EMAILS)"
 
    # create and opt-out for GCE Firwall
    gcloud alpha projects create $PROJECT_ID --labels=gce-enforcer-fw-opt-out=shortlivedexternal
-   sleep 2
+   sleep 2 
 
-   # editor
+   # set iam policy
    rm -f iam.json.*
    gcloud alpha projects get-iam-policy $PROJECT_ID --format=json > iam.json.orig
-   cat iam.json.orig | sed s'/"bindings": \[/"bindings": \[ \{"members": \["user:'$EMAIL'"\],"role": "roles\/editor"\},/g' > iam.json.new
+   # set editor
+   cat iam.json.orig | sed s'/"bindings": \[/"bindings": \[ \{"members": \["user:'$STUDENT_EMAIL'"\],"role": "roles\/editor"\},/g' > iam.json.new
    gcloud alpha projects set-iam-policy $PROJECT_ID iam.json.new
 
    # billing
@@ -56,6 +83,6 @@ for EMAIL in $EMAILS; do
    gcloud config set project $ORIG_PROJECT
    
    # output the email, project id, and a link to the project console
-   printf "%s, %s, https://console.cloud.google.com/home/dashboard?project=%s\n" $EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.csv
+   printf "%s, %s, https://console.cloud.google.com/home/dashboard?project=%s\n" $STUDENT_EMAIL $PROJECT_ID $PROJECT_ID | tee -a account-list.csv
    (( PROGRESS++ ))
 done
