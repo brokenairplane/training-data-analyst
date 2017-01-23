@@ -17,7 +17,6 @@ if [ "$1" == "-students" ]; then
     exit
   else
     STUDENT_EMAILS=(${1,,})
-    echo ${STUDENT_EMAILS[@]}
   fi
 else
   echo "-students flag is required e.g. -students \"somebody@gmail.com\""
