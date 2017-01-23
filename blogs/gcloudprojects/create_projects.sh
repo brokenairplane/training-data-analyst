@@ -26,6 +26,8 @@ TOTAL_STUDENT_EMAILS=${#STUDENT_EMAILS[@]}
 ORIG_PROJECT=$(gcloud config get-value project)
 PROGRESS=1
 
+truncate -s 0 account-list.csv
+
 gcloud components update
 gcloud components install alpha
 
