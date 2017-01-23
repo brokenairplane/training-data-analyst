@@ -1,14 +1,26 @@
 #!/bin/bash
-
-if [ "$#" -lt 4 ]; then
-   echo "Usage:  ./create_projects.sh billingid project-prefix -students \"email1 [email2 [email3 ...]]]"
-   echo "   eg:  ./create_projects.sh 0X0X0X-0X0X0X-0X0X0X learnml-170106-bld -students \"somebody@gmail.com someother@gmail.com\""
+if [ "$#" -lt 6 ]; then
+   echo "Usage:  ./create_projects.sh billingid project-prefix -owners \"email1 [email 2 [email3...]]\" -students \"email1 [email2 [email3 ...]]]"
+   echo "   eg:  ./create_projects.sh 0X0X0X-0X0X0X-0X0X0X learnml-170106 -owners \"owner1@gmail.com owner2@gmail.com\" -students \"somebody@gmail.com someother@gmail.com\""
    exit
 fi
-
+   
 ACCOUNT_ID=$1
 shift
 PROJECT_PREFIX=$1
+shift
+if [ "$1" == "-owners" ]; then		
+  shift		
+  if [ -z "$1" ]; then		
+    echo "There must be at least one owner"		
+    exit		
+  else		
+    OWNER_EMAILS=(${1,,}) # Make lowercase		
+  fi		
+else		
+  echo "-owners flag is required e.g. -owners \"somebody@gmail.com\""		
+  exit		
+fi		
 shift
 if [ "$1" == "-students" ]; then
   shift
@@ -23,6 +35,7 @@ else
   exit
 fi
 TOTAL_STUDENT_EMAILS=${#STUDENT_EMAILS[@]}
+TOTAL_OWNER_EMAILS=${#OWNER_EMAILS[@]}
 ORIG_PROJECT=$(gcloud config get-value project)
 PROGRESS=1
 
@@ -38,13 +51,14 @@ for STUDENT_EMAIL in "${STUDENT_EMAILS[@]}"; do
    # create and opt-out for GCE Firwall
    gcloud alpha projects create $PROJECT_ID --labels=gce-enforcer-fw-opt-out=shortlivedexternal
    sleep 2 
-
-   # set iam policy
-   rm -f iam.json.*
-   gcloud alpha projects get-iam-policy $PROJECT_ID --format=json > iam.json.orig
-   # set editor
-   cat iam.json.orig | sed s'/"bindings": \[/"bindings": \[ \{"members": \["user:'$STUDENT_EMAIL'"\],"role": "roles\/editor"\},/g' > iam.json.new
-   gcloud alpha projects set-iam-policy $PROJECT_ID iam.json.new
+   
+   # add student as editor
+   gcloud projects add-iam-policy-binding $PROJECT_ID --member user:$STUDENT_EMAIL --role roles/editor
+   
+   # add Facilitators/TAs as owners
+   for OWNER_EMAIL in "${OWNER_EMAILS[@]}"; do
+     gcloud projects add-iam-policy-binding $PROJECT_ID --member user:$OWNER_EMAIL --role roles/owner
+   done
 
    # billing
    echo "Enabling Billing"
