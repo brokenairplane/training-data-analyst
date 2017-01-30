@@ -14,8 +14,9 @@ shift
 EMAILS=$@
 
 for EMAIL in $EMAILS; do
+   EMAIL=${1,,} # Make lowercase
    PROJECT_ID=$(echo "${PROJECT_PREFIX}-${EMAIL}" | sed 's/@/x/g' | sed 's/\./x/g' | cut -c 1-30)
    echo "Deleting project $PROJECT_ID for $EMAIL ... "
 
-   gcloud alpha projects delete $PROJECT_ID
+   gcloud alpha projects delete $PROJECT_ID --quiet
 done
