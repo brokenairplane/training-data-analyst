@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ "$#" -lt 2 ]; then
-   echo "Usage:  ./create_projects.sh  project-prefix  email1 [email2 [email3 ...]]]"
-   echo "   eg:  ./create_projects.sh  learnml-20170106  somebody@gmail.com someother@gmail.com"
+   echo "Usage:  ./delete_projects.sh  project-prefix  email1 [email2 [email3 ...]]]"
+   echo "   eg:  ./delete_projects.sh  learnml-20170106  somebody@gmail.com someother@gmail.com"
    exit
 fi
 
